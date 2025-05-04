@@ -12,3 +12,11 @@ services:
       - ./frontend/dist:/usr/share/nginx/html:ro
     
     working_dir: /usr/share/nginx/html
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend.prod
+    
+    expose:
+      - "8000"
