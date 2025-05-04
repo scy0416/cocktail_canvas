@@ -1,0 +1,14 @@
+# docker-compose.dev.yaml
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.nginx.dev
+    
+    ports:
+      - 80:80
+    
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    
+    working_dir: /usr/share/nginx/html
