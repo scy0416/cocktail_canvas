@@ -33,3 +33,12 @@ services:
       - ./mysql/data:/var/lib/mysql
     expose:
       - "3306"
+  
+  chromadb:
+    image: ghcr.io/chroma-core/chroma:latest
+    container_name: chromadb
+    expose:
+      - "8000"
+    volumes:
+      - ./chromadb/data:/data
+    command: ["run", "--host", "0.0.0.0", "--port", "8000", "--path", "/data"]
