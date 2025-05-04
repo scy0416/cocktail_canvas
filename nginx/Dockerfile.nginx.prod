@@ -1,0 +1,7 @@
+# Dockerfile.nginx.prod
+FROM nginx:stable-alpine
+
+# 설정 파일 복사
+COPY nginx.prod.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
