@@ -20,3 +20,16 @@ services:
     
     expose:
       - "8000"
+  
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    expose:
+      - "3306"
