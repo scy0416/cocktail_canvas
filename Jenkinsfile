@@ -24,7 +24,7 @@ pipeline {
       steps {
         dir("${COMPOSE_PROJECT_DIR}") {
           // 이미지 최신화
-          sh 'docker compose pull'
+          sh 'docker compose -f docker-compose.prod.yaml pull'
           // 백그라운드 재배포(재빌드 포함)
           sh 'docker compose -f docker-compose.prod.yaml up -d --build'
         }
