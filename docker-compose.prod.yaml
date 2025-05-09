@@ -11,7 +11,7 @@ services:
     
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./certbot/webroot:/var/www/certbot:rw
     
     working_dir: /usr/share/nginx/html
