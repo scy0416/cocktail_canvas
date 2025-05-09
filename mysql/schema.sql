@@ -8,6 +8,7 @@ USE `cocktail_canvas`;
 CREATE TABLE IF NOT EXISTS `User` (
   `id`   INT           NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100)  NOT NULL,
+  `kakao_id` VARCHAR(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -105,40 +106,22 @@ CREATE TABLE IF NOT EXISTS `RecipeIngredient` (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 9. 추천 테이블 (사용자 ↔ 칵테일)
-CREATE TABLE IF NOT EXISTS `Recommendation` (
-  `user_id`        INT         NOT NULL,
-  `cocktail_id`    INT         NOT NULL,
-  `recommended_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`,`cocktail_id`),
-  KEY `idx_rec_user`    (`user_id`),
-  KEY `idx_rec_ct`      (`cocktail_id`),
-  CONSTRAINT `fk_rec_user`
-    FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_rec_cocktail`
-    FOREIGN KEY (`cocktail_id`) REFERENCES `Cocktail` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 10. 리뷰 테이블 (사용자 ↔ 칵테일)
+-- 9. 리뷰 테이블 (사용자 ↔ 칵테일)
 CREATE TABLE IF NOT EXISTS `Review` (
-  `id`            INT       NOT NULL AUTO_INCREMENT,
-  `user_id`       INT       NOT NULL,
-  `cocktail_id`   INT       NOT NULL,
-  `rating`        TINYINT   NOT NULL,
-  `comment`       TEXT,
-  `review_date`   DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id`          INT       NOT NULL AUTO_INCREMENT,
+  `user_id`     INT       NOT NULL,
+  `cocktail_id` INT       NOT NULL,
+  `rating`      TINYINT   NOT NULL,
+  `comment`     TEXT,
+  `review_date` DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `idx_rev_user`     (`user_id`),
-  KEY `idx_rev_cocktail` (`cocktail_id`),
-  CONSTRAINT `fk_rev_user`
+  KEY `idx_review_user`     (`user_id`),
+  KEY `idx_review_cocktail` (`cocktail_id`),
+  CONSTRAINT `fk_review_user`
     FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_rev_cocktail`
+  CONSTRAINT `fk_review_cocktail`
     FOREIGN KEY (`cocktail_id`) REFERENCES `Cocktail` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
