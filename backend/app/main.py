@@ -3,15 +3,16 @@ from fastapi.responses import RedirectResponse
 from fastapi import Query
 from fastapi.exceptions import HTTPException
 from dotenv import load_dotenv
+import requests
 import os
 
 load_dotenv()
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/api/uritest")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": os.getenv('KAKAO_REDIRECT_URI')}
 
 @app.get("/api/test")
 async def test():
@@ -74,4 +75,4 @@ def login_kakao_callback(code: str = Query(None)):
     if not user_nickname:
         raise HTTPException(status_code=500, detail="카카오 사용자 정보를 받아오지 못했습니다.")
     
-    return {"message": "카카오 사용자 정보를 받아왔습니다.", "user_nickname": user_nickname}
+    return {"message": "카카오 사용자 정보를 받아왔습니다.", "user_nickname": user_nickname, "user_info_json": user_info_json}
