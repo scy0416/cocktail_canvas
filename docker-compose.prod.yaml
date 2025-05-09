@@ -1,6 +1,7 @@
 # docker-compose.prod.yaml
 services:
   nginx:
+    container_name: nginx
     build:
       context: ./nginx
       dockerfile: Dockerfile.nginx.prod
@@ -16,6 +17,7 @@ services:
     working_dir: /usr/share/nginx/html
   
   backend:
+    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile.backend.prod
