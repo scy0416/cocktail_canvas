@@ -9,5 +9,17 @@ export default defineConfig({
     tailwindcss(),
     // ② Svelte (기존 사용하셨던 플러그인)
     svelte(),
-  ]
+  ],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      }
+    }
+  },
 });
