@@ -29,7 +29,7 @@ def login_kakao():
     kakao_auth_url = (
         "https://kauth.kakao.com/oauth/authorize"
         f"?client_id={os.getenv('KAKAO_CLIENT_ID')}"
-        "&redirect_uri=http://localhost:3000/api/login/kakao/callback"
+        f"&redirect_uri={os.getenv('KAKAO_REDIRECT_URI')}"
         "&response_type=code"
         "&prompt=select_account"
     )
@@ -47,7 +47,7 @@ def login_kakao_callback(code: str = Query(None)):
     data = {
         "grant_type": "authorization_code",
         "client_id": os.getenv("KAKAO_CLIENT_ID"),
-        "redirect_uri": "http://localhost:3000/api/login/kakao/callback",
+        "redirect_uri": os.getenv("KAKAO_REDIRECT_URI"),
         "code": code
     }
 
