@@ -1,4 +1,3 @@
 .env
 mysql/data
 chromadb/data
-backend/app/__pycache__/
