@@ -18,8 +18,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile.backend.dev
     
-    expose:
-      - "8000"
+    ports:
+      - "8001:8000"
     
     volumes:
       - ./backend:/usr/src/app
@@ -36,8 +36,9 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - ./mysql/data:/var/lib/mysql
+      - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
-      - "3306:3306"
+      - "3307:3306"
   
   chromadb:
     image: ghcr.io/chroma-core/chroma:latest
