@@ -171,3 +171,7 @@ async def login_kakao_callback(code: str = Query(None), db: Session = Depends(ge
     )
     
     return response
+
+@app.post("/api/auth/verify")
+def verify():
+    return 

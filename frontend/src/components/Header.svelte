@@ -1,5 +1,17 @@
 <script>
-    import { isLogin } from '../store.js';
+    import { isAuthenticated } from '../store.js';
+    async function login(){
+        //console.log("로그인 시도");
+        let response = await fetch('/api/login/kakao', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        let data = await response.json();
+        console.log(data);
+        isAuthenticated.set(true);
+    }
 </script>
 
 <!-- 전체 헤더 시작 -->
@@ -14,10 +26,10 @@
         <label for="header" aria-label="close sidebar" class="drawer-overlay"></label>
         <aside class="bg-base-100 min-h-screen w-80">
             <div class="p-4 flex">
-                {#if $isLogin}
+                {#if $isAuthenticated}
                 <button class="flex-1 btn btn-ghost">로그아웃</button>
                 {:else}
-                <button class="flex-1 btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
+                <button on:click={login} class="flex-1 btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
                 {/if}
             </div>
             <ul class="menu w-full p-4">
@@ -52,10 +64,10 @@
 
     <!-- 로그인, 회원가입 버튼 시작 -->
     <div class="ml-auto">
-        {#if $isLogin}
+        {#if $isAuthenticated}
         <button class="btn btn-ghost">로그아웃</button>
         {:else}
-        <button class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
+        <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
         {/if}
     </div>
     <!-- 로그인, 회원가입 버튼 끝 -->
