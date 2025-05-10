@@ -1,16 +1,16 @@
 <script>
     import { isAuthenticated } from '../store.js';
-    async function login(){
-        //console.log("로그인 시도");
-        let response = await fetch('/api/login/kakao', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+    function login(){
+        window.location.assign('/api/login/kakao');
+    }
+    async function logout(){
+        const response = await fetch('/api/logout', {
+            method: 'POST',
         });
-        let data = await response.json();
-        console.log(data);
-        isAuthenticated.set(true);
+        if(response.status === 200){
+            isAuthenticated.set(false);
+            console.log("로그아웃 성공");
+        }
     }
 </script>
 
@@ -27,15 +27,17 @@
         <aside class="bg-base-100 min-h-screen w-80">
             <div class="p-4 flex">
                 {#if $isAuthenticated}
-                <button class="flex-1 btn btn-ghost">로그아웃</button>
+                <button class="flex-1 btn btn-ghost" on:click={logout}>로그아웃</button>
                 {:else}
-                <button on:click={login} class="flex-1 btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
+                <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
                 {/if}
             </div>
             <ul class="menu w-full p-4">
+                {#if $isAuthenticated}
                 <li>
-                    <a href="#/" class="link link-hover text-xl text-gray-500">AI 바텐더</a>
+                    <a href="#/ai-bartender" class="link link-hover text-xl text-gray-500">AI 바텐더</a>
                 </li>
+                {/if}
                 <li>
                     <a href="#/" class="link link-hover text-xl text-gray-500">IBA 공식 칵테일</a>
                 </li>
@@ -56,7 +58,9 @@
     
     <!-- 네비게이션 시작 -->
     <div>
+        {#if $isAuthenticated}
         <a href="#/ai-bartender" class="link link-hover text-xl text-gray-500 ml-10">AI 바텐더</a>
+        {/if}
         <a href="#/" class="link link-hover text-xl text-gray-500 ml-10">IBA 공식 칵테일</a>
         <a href="#/" class="link link-hover text-xl text-gray-500 ml-10">창작 칵테일</a>
     </div>
@@ -65,7 +69,7 @@
     <!-- 로그인, 회원가입 버튼 시작 -->
     <div class="ml-auto">
         {#if $isAuthenticated}
-        <button class="btn btn-ghost">로그아웃</button>
+        <button class="btn btn-ghost" on:click={logout}>로그아웃</button>
         {:else}
         <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
         {/if}

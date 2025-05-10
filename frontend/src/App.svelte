@@ -8,10 +8,25 @@
   import { wrap } from 'svelte-spa-router/wrap';
   import { isAuthenticated } from './store.js';
   import { push } from 'svelte-spa-router';
+  import { onMount } from 'svelte';
 
   import Header from './components/Header.svelte';
 
   // 이곳에 onMount를 통한 최초 인증하기
+  onMount(async () => {
+    const response = await fetch('/api/auth/verify', {
+      method: 'POST',
+    });
+    if(response.status === 200){
+      isAuthenticated.set(true);
+      console.log("인증 성공");
+    }
+    else{
+      isAuthenticated.set(false);
+      console.log("인증 실패");
+    }
+    //const data = await response.json();
+  });
 
   function guardHome(){
     let auth;

@@ -14,11 +14,18 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
 
+    logLevel: 'debug',
     proxy: {
       '/api': {
-        target: 'http://backend:8001',
+        target: 'http://nginx:80',
         changeOrigin: true,
-        //rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if(req.method === 'HEAD'){
+              proxyReq.method = 'GET'
+            }
+          })
+        },
         rewrite: (path) => path.replace(/^\/api/, '/api'),
       }
     }

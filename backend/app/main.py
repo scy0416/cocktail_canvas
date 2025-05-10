@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Cookie
 from fastapi.responses import RedirectResponse
 from fastapi import Query, Depends
 from fastapi.exceptions import HTTPException
@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, Session
 import requests
 import os
 from datetime import datetime, timedelta
+from fastapi.responses import Response
 import jwt
 from app.models import *
 
@@ -173,5 +174,53 @@ async def login_kakao_callback(code: str = Query(None), db: Session = Depends(ge
     return response
 
 @app.post("/api/auth/verify")
-def verify():
-    return 
+def verify(response: Response, access_token: str = Cookie(None), refresh_token: str = Cookie(None), db: Session = Depends(get_db)):
+    """
+    1) access_token 검증
+    2) refresh_token 검증
+    3) refresh_token으로 access_token 재발행
+    4) access_token과 refresh_token을 쿠키에 저장
+    5) 쿠키를 응답에 포함
+    """
+    # 1) access_token 검증
+    if not access_token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다. 로그인 해주세요.")
+    
+    # 2) access_token 검증
+    try:
+        payload = verify_token(access_token)
+        return {"message": "access token valid", "user": payload}
+    except HTTPException as e:
+        if e.status_code == 401 and "만료" in e.detail:
+            if not refresh_token:
+                raise HTTPException(status_code=401, detail="리프레시 토큰이 없습니다. 다시 로그인하세요.")
+            try:
+                refresh_payload = verify_token(refresh_token)
+            except HTTPException:
+                raise HTTPException(status_code=401, detail="리프레시 토큰이 만료되었습니다. 다시 로그인하세요.")
+            user = db.query(User).filter(User.id == refresh_payload.get("id")).first()
+            if not user:
+                raise HTTPException(status_code=401, detail="유효하지 않은 사용자입니다.")
+            new_access_token = create_access_token(user)
+            new_refresh_token = create_refresh_token(user)
+
+            cookie_opts = {
+                "httponly": True,
+                "secure": True,
+            }
+            response.set_cookie(key="access_token", value=new_access_token, **cookie_opts)
+            response.set_cookie(key="refresh_token", value=new_refresh_token, **cookie_opts)
+
+            return {"message": "tokens refreshed", "user": refresh_payload}
+        raise
+
+@app.post("/api/logout")
+def logout(response: Response):
+    """
+    1) access_token 삭제
+    2) refresh_token 삭제
+    """
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return {"message": "logout successful"}
+    #return response
