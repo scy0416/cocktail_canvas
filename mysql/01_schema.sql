@@ -1,3 +1,5 @@
+/*!40101 SET NAMES utf8mb4 */;
+
 -- 0. 데이터베이스 생성 및 선택
 CREATE DATABASE IF NOT EXISTS `cocktail_canvas`
   CHARACTER SET utf8mb4
@@ -48,6 +50,9 @@ CREATE TABLE IF NOT EXISTS `Cocktail` (
   `name`            VARCHAR(100)  NOT NULL,
   `description`     TEXT,
   `registered_date` DATE,
+  `alcohol`         DOUBLE        NOT NULL,
+  `image_url`       VARCHAR(100),
+  `user_review`     TEXT,
   PRIMARY KEY (`id`),
   KEY `idx_cocktail_user` (`user_id`),
   CONSTRAINT `fk_cocktail_user`
@@ -72,8 +77,9 @@ CREATE TABLE IF NOT EXISTS `CocktailTag` (
 CREATE TABLE IF NOT EXISTS `Recipe` (
   `id`          INT NOT NULL AUTO_INCREMENT,
   `cocktail_id` INT NOT NULL,
+  `recipe`      TEXT NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_recipe_cocktail` (`cocktail_id`),
+  KEY `idx_recipe_cocktail` (`cocktail_id`),
   CONSTRAINT `fk_recipe_cocktail`
     FOREIGN KEY (`cocktail_id`) REFERENCES `Cocktail` (`id`)
     ON DELETE CASCADE
@@ -90,14 +96,14 @@ CREATE TABLE IF NOT EXISTS `Ingredient` (
 
 -- 8. 레시피-재료 매핑 테이블 (다대다 + 용량)
 CREATE TABLE IF NOT EXISTS `RecipeIngredient` (
-  `recipe_id`     INT         NOT NULL,
+  `cocktail_id`     INT         NOT NULL,
   `ingredient_id` INT         NOT NULL,
   `amount`        VARCHAR(50),
-  PRIMARY KEY (`recipe_id`,`ingredient_id`),
-  KEY `idx_ri_recipe`     (`recipe_id`),
+  PRIMARY KEY (`cocktail_id`,`ingredient_id`),
+  KEY `idx_ri_cocktail`     (`cocktail_id`),
   KEY `idx_ri_ingredient` (`ingredient_id`),
-  CONSTRAINT `fk_ri_recipe`
-    FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
+  CONSTRAINT `fk_ri_cocktail`
+    FOREIGN KEY (`cocktail_id`) REFERENCES `Cocktail` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_ri_ingredient`

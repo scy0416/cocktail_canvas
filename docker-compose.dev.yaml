@@ -11,6 +11,7 @@ services:
     
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./backend/images:/usr/src/app/images
     
     working_dir: /usr/share/nginx/html
   
@@ -49,9 +50,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./mysql/data:/var/lib/mysql
-      - ./mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./mysql/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./mysql/02_IBA_cocktails.sql:/docker-entrypoint-initdb.d/02_IBA_cocktails.sql
     ports:
       - "3307:3306"
   
