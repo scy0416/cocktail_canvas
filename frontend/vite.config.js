@@ -27,6 +27,11 @@ export default defineConfig({
           })
         },
         rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+      '/images': {
+        target: 'http://nginx:80',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/images/, '/images'),
       }
     }
   },

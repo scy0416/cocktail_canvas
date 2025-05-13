@@ -39,10 +39,10 @@
                 </li>
                 {/if}
                 <li>
-                    <a href="#/" class="link link-hover text-xl text-gray-500">IBA 공식 칵테일</a>
+                    <a href="#/iba-cocktail" class="link link-hover text-xl text-gray-500">IBA 공식 칵테일</a>
                 </li>
                 <li>
-                    <a href="#/" class="link link-hover text-xl text-gray-500">창작 칵테일</a>
+                    <a href="#/custom-cocktail" class="link link-hover text-xl text-gray-500">창작 칵테일</a>
                 </li>
             </ul>
         </aside>
@@ -61,8 +61,8 @@
         {#if $isAuthenticated}
         <a href="#/ai-bartender" class="link link-hover text-xl text-gray-500 ml-10">AI 바텐더</a>
         {/if}
-        <a href="#/" class="link link-hover text-xl text-gray-500 ml-10">IBA 공식 칵테일</a>
-        <a href="#/" class="link link-hover text-xl text-gray-500 ml-10">창작 칵테일</a>
+        <a href="#/iba-cocktail" class="link link-hover text-xl text-gray-500 ml-10">IBA 공식 칵테일</a>
+        <a href="#/custom-cocktail" class="link link-hover text-xl text-gray-500 ml-10">창작 칵테일</a>
     </div>
     <!-- 네비게이션 끝 -->
 

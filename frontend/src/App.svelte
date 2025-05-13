@@ -4,6 +4,9 @@
   import AIBartender from './routes/AIBartender.svelte';
   import CocktailRecipe from './routes/CocktailRecipe.svelte';
   import NotFound from './routes/NotFound.svelte';
+  import MyPage from './routes/MyPage.svelte';
+  import IBACocktail from './routes/IBACocktail.svelte';
+  import CustomCocktail from './routes/CustomCocktail.svelte';
   import { link } from 'svelte-spa-router';
   import { wrap } from 'svelte-spa-router/wrap';
   import { isAuthenticated } from './store.js';
@@ -42,7 +45,10 @@
   const routes = {
     '/': Home,
     '/ai-bartender': wrap({ component: AIBartender, conditions: [guardHome] }),
-    '/cocktail-recipe': wrap({ component: CocktailRecipe, conditions: [guardHome] }),
+    '/cocktail/:id': CocktailRecipe,
+    '/my-page': wrap({ component: MyPage, conditions: [guardHome] }),
+    '/iba-cocktail': wrap({ component: IBACocktail, conditions: [guardHome] }),
+    '/custom-cocktail': wrap({ component: CustomCocktail, conditions: [guardHome] }),
     '*': NotFound
   };
 </script>

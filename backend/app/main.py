@@ -11,6 +11,9 @@ from datetime import datetime, timedelta
 from fastapi.responses import Response
 import jwt
 from app.models import *
+import random
+from random import Random
+from datetime import datetime, date
 
 """
 환경설정 영역 시작
@@ -87,10 +90,6 @@ def verify_token(token):
 @app.get("/api/test")
 async def test():
     return {"message": "api_test"}
-
-@app.get("/api/{item_id}")
-async def read_item(item_id: int):
-    return {"item_id": item_id}
 
 @app.get("/api/login/kakao")
 def login_kakao():
@@ -224,3 +223,86 @@ def logout(response: Response):
     response.delete_cookie("refresh_token")
     return {"message": "logout successful"}
     #return response
+
+@app.get("/api/cocktails")
+def get_cocktails(db: Session = Depends(get_db)):
+    """
+    칵테일 리스트를 반환한다.
+    """
+    print("칵테일 리스트 테스트")
+    cocktails = db.query(Cocktail).all()
+    return cocktails
+
+@app.get("/api/recommend/random")
+def recommend_random_cocktail(db: Session = Depends(get_db)):
+    """
+    랜덤 추천 칵테일 리스트를 반환한다.
+    """
+    now = str(datetime.now())
+    random.seed(now)
+    cocktails = db.query(Cocktail).all()
+    random_cocktails = random.sample(cocktails, 4)
+    result = []
+    for cocktail in random_cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result
+
+@app.get("/api/recommend/daily")
+def recommend_daily_cocktail(db: Session = Depends(get_db)):
+    """
+    일일 추천 칵테일 리스트를 반환한다.
+    """
+    today = str(date.today())
+    rng = Random(today)
+    cocktails = db.query(Cocktail).all()
+    random_cocktails = rng.sample(cocktails, 4)
+    result = []
+    for cocktail in random_cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result
+
+@app.get("/api/cocktail/{id}")
+def get_cocktail(id: int, db: Session = Depends(get_db)):
+    """
+    칵테일 정보를 반환한다.
+    """
+    cocktail = db.query(Cocktail).filter(Cocktail.id == id).first()
+    if not cocktail:
+        raise HTTPException(status_code=404, detail="해당 칵테일을 찾을 수 없습니다.")
+    result = {}
+    result["name"] = cocktail.name
+    result["description"] = cocktail.description
+    result["alcohol"] = cocktail.alcohol
+    result["image_url"] = cocktail.image_url
+    result["user_review"] = cocktail.user_review
+    result["tags"] = []
+    for tag in cocktail.tags:
+        result["tags"].append(tag.tag)
+    result["recipe_ingredients"] = []
+    for recipe_ingredient in cocktail.recipe_ingredients:
+        result["recipe_ingredients"].append({
+            "name": recipe_ingredient.ingredient.name,
+            "tag": recipe_ingredient.ingredient.tag,
+            "amount": recipe_ingredient.amount
+        })
+    result["recipes"] = []
+    for recipe in cocktail.recipes:
+        result["recipes"].append(recipe.recipe)
+    return result

@@ -5,11 +5,11 @@
 
     let ready = false;
     let error = false;
-    let daily_recommendation = [];
+    let random_recommendation = [];
 
     onMount(async () => {
         try{
-            daily_recommendation = await fetch("/api/recommend/daily").then(async res => {
+            random_recommendation = await fetch("/api/recommend/random").then(async res => {
                 if (res.ok){
                     ready = true;
                     return await res.json();
@@ -22,8 +22,8 @@
     })
 </script>
 
-<!-- 전체 오늘의 추천 시작 -->
-<!-- 모바일 오늘의 추천 시작 -->
+<!-- 전체 랜덤 추천 시작 -->
+<!-- 모바일 랜덤 추천 시작 -->
 {#if error}
 <div role="alert" class="alert alert-error">정보를 가져오는 중 문제가 발생했습니다</div>
 {:else}
@@ -31,7 +31,7 @@
     <div>
         <!-- 제목 시작 -->
         <div class="w-full flex justify-center mb-5">
-            <div class="text-4xl">오늘의 추천 레시피</div>
+            <div class="text-4xl">랜덤 추천 레시피</div>
         </div>
         <div class="w-full flex justify-center mb-5">
             <div class="text-xl">이런 칵테일은 어떠세요?</div>
@@ -46,7 +46,7 @@
             <SkeletonCocktailCard />
             <SkeletonCocktailCard />
             {:else}
-            {#each daily_recommendation as item}
+            {#each random_recommendation as item}
                 <CocktailCard {...item}/>
             {/each}
             {/if}
@@ -54,9 +54,9 @@
         <!-- 스크롤 가능한 레시피들 끝 -->
     </div>
 </div>
-{/if}<!-- 모바일 오늘의 추천 끝 -->
+{/if}<!-- 모바일 랜덤 추천 끝 -->
 
-<!-- 데스크톱 오늘의 추천 시작 -->
+<!-- 데스크톱 랜덤 추천 시작 -->
 {#if error}
 <div role="alert" class="alert alert-error">정보를 가져오는 중 문제가 발생했습니다</div>
 {:else}
@@ -64,7 +64,7 @@
     <div>
         <!-- 제목 시작 -->
         <div class="w-full flex justify-center mb-5">
-            <div class="text-4xl">오늘의 추천 레시피</div>
+            <div class="text-4xl">랜덤 추천 레시피</div>
         </div>
         <div class="w-full flex justify-center mb-5">
             <div class="text-xl">이런 칵테일은 어떠세요?</div>
@@ -79,7 +79,7 @@
             <SkeletonCocktailCard />
             <SkeletonCocktailCard />
             {:else}
-            {#each daily_recommendation as item}
+            {#each random_recommendation as item}
                 <CocktailCard {...item}/>
             {/each}
             {/if}
@@ -88,5 +88,5 @@
     </div>
 </div>
 {/if}
-<!-- 데스크톱 오늘의 추천 끝 -->
-<!-- 전체 오늘의 추천 끝 -->
+<!-- 데스크톱 랜덤 추천 끝 -->
+<!-- 전체 랜덤 추천 끝 -->
