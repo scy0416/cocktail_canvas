@@ -47,8 +47,8 @@
     '/ai-bartender': wrap({ component: AIBartender, conditions: [guardHome] }),
     '/cocktail/:id': CocktailRecipe,
     '/my-page': wrap({ component: MyPage, conditions: [guardHome] }),
-    '/iba-cocktail': wrap({ component: IBACocktail, conditions: [guardHome] }),
-    '/custom-cocktail': wrap({ component: CustomCocktail, conditions: [guardHome] }),
+    '/iba-cocktail': IBACocktail,
+    '/custom-cocktail': CustomCocktail,
     '*': NotFound
   };
 </script>

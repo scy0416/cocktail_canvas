@@ -306,3 +306,63 @@ def get_cocktail(id: int, db: Session = Depends(get_db)):
     for recipe in cocktail.recipes:
         result["recipes"].append(recipe.recipe)
     return result
+
+@app.get("/api/iba-cocktail")
+def get_ibacocktails(sort: str = Query("name-asc"), db: Session = Depends(get_db)):
+    """
+    IBA 칵테일 리스트를 반환한다.
+    """
+    cocktails = db.query(Cocktail).filter(Cocktail.id <= 20)
+    match sort:
+        case "name-asc":
+            cocktails = cocktails.order_by(Cocktail.name.asc())
+        case "name-desc":
+            cocktails = cocktails.order_by(Cocktail.name.desc())
+        case "alcoholic-asc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.asc())
+        case "alcoholic-desc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.desc())
+    cocktails = cocktails.all()
+    result = []
+    for cocktail in cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result
+
+@app.get("/api/custom-cocktail")
+def get_customcocktails(sort: str = Query("name-asc"), db: Session = Depends(get_db)):
+    """
+    사용자가 만든 칵테일 리스트를 반환한다.
+    """
+    cocktails = db.query(Cocktail).filter(Cocktail.id > 20)
+    match sort:
+        case "name-asc":
+            cocktails = cocktails.order_by(Cocktail.name.asc())
+        case "name-desc":
+            cocktails = cocktails.order_by(Cocktail.name.desc())
+        case "alcoholic-asc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.asc())
+        case "alcoholic-desc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.desc())
+    cocktails = cocktails.all()
+    result = []
+    for cocktail in cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result
