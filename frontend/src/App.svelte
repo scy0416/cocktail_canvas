@@ -7,6 +7,7 @@
   import MyPage from './routes/MyPage.svelte';
   import IBACocktail from './routes/IBACocktail.svelte';
   import CustomCocktail from './routes/CustomCocktail.svelte';
+  import CustomCocktailRegister from './routes/CustomCocktailRegister.svelte';
   import { link } from 'svelte-spa-router';
   import { wrap } from 'svelte-spa-router/wrap';
   import { isAuthenticated } from './store.js';
@@ -49,6 +50,7 @@
     '/my-page': wrap({ component: MyPage, conditions: [guardHome] }),
     '/iba-cocktail': IBACocktail,
     '/custom-cocktail': CustomCocktail,
+    '/custom-cocktail/register': wrap({ component: CustomCocktailRegister, conditions: [guardHome] }),
     '*': NotFound
   };
 </script>

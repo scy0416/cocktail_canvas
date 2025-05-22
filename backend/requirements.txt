@@ -6,3 +6,5 @@ sqlalchemy
 pyjwt
 pymysql
 cryptography
+python-multipart
+aiofiles

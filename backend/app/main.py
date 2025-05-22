@@ -9,11 +9,15 @@ import requests
 import os
 from datetime import datetime, timedelta
 from fastapi.responses import Response
+from fastapi import Request
 import jwt
 from app.models import *
 import random
 from random import Random
 from datetime import datetime, date
+from fastapi import File, UploadFile, Form
+from typing import List
+import aiofiles
 
 """
 환경설정 영역 시작
@@ -222,7 +226,6 @@ def logout(response: Response):
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
     return {"message": "logout successful"}
-    #return response
 
 @app.get("/api/cocktails")
 def get_cocktails(db: Session = Depends(get_db)):
@@ -366,3 +369,98 @@ def get_customcocktails(sort: str = Query("name-asc"), db: Session = Depends(get
             tmp["tags"].append(tag.tag)
         result.append(tmp)
     return result
+
+@app.post("/api/user-cocktail")
+def get_usercocktails(
+    response: Response,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+):
+    """
+    사용자가 만든 칵테일 리스트를 반환한다.
+    """
+    cocktails = db.query(Cocktail).filter(Cocktail.user_id == user.get("id")).all()
+    result = []
+    for cocktail in cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result
+
+@app.post("/api/cocktail/delete/{cocktail_id}")
+def delete_cocktail(
+    response: Response,
+    cocktail_id: int,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+):
+    """
+    사용자가 만든 칵테일을 삭제한다.
+    """
+    cocktail = db.query(Cocktail).filter(Cocktail.id == cocktail_id).first()
+    if not cocktail:
+        raise HTTPException(status_code=404, detail="해당 칵테일을 찾을 수 없습니다.")
+    if cocktail.user_id != user.get("id"):
+        raise HTTPException(status_code=403, detail="해당 칵테일을 삭제할 수 없습니다.")
+    db.delete(cocktail)
+    db.commit()
+    return {"message": "cocktail deleted"}
+
+@app.post("/api/custom-cocktail/register")
+async def create_custom_cocktail(
+    response: Response,
+    request: Request,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+    name: str = Form(...),
+    description: str = Form(...),
+    ingredients: List[str] = Form(...),
+    recipes: List[str] = Form(...),
+    tags: List[str] = Form(...),
+    image: UploadFile = File(...),
+):
+    """
+    사용자가 만든 칵테일을 등록한다.
+    """
+    print(user)
+    print(name)
+    print(description)
+    print(ingredients)
+    print(recipes)
+    print(tags)
+    print(image)
+
+    cocktail = Cocktail(
+        user_id=user.get("id"),
+        name=name,
+        description=description,
+        alcohol=0,
+        user_review="-",
+        image_url=""
+    )
+    db.add(cocktail)
+    db.commit()
+    db.refresh(cocktail)
+
+    async with aiofiles.open(f"../images/{cocktail.id}_{name}.png", "wb") as out_file:
+        while content := await image.read(1024):
+            await out_file.write(content)
+    
+    cocktail.image_url = f"../images/{cocktail.id}_{name}.png"
+    db.commit()
+
+    for tag in tags:
+        tmp = Tag(cocktail_id=cocktail.id, tag=tag)
+        db.add(tmp)
+    db.commit()
+
+    
+    
+    return {"message": "cocktail registered"}

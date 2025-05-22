@@ -42,6 +42,20 @@
         </div>
         <!-- 제목 끝 -->
 
+        <!-- 정렬 조건 시작 -->
+        <div class="w-full flex justify-center mb-5">
+            <div class="rounded-full p-2 shadow-lg flex items-center">
+                <div>정렬 기준</div>
+                <select class="select" on:change={(e) => sort = e.target.value}>
+                    <option value="name-asc" selected>이름순</option>
+                    <option value="name-desc">이름역순</option>
+                    <option value="alcoholic-asc">알코올 포함순</option>
+                    <option value="alcoholic-desc">알코올 미포함순</option>
+                </select>
+            </div>
+        </div>
+        <!-- 정렬 조건 끝 -->
+
         <!-- 스크롤 가능한 레시피들 시작 -->
         <div>
             {#if !ready}
