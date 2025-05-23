@@ -24,6 +24,9 @@ services:
       context: ./backend
       dockerfile: Dockerfile.backend.prod
     
+    volumes:
+      - ./backend/images:/usr/src/app/images
+    
     expose:
       - "8000"
   

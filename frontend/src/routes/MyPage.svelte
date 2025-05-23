@@ -15,11 +15,15 @@
         ready = true;
     }
 
-    function deleteCocktail(cocktail_id){
-        const response = fetch(`/api/cocktail/delete/${cocktail_id}`, {
+    async function deleteCocktail(cocktail_id){
+        const response = await fetch(`/api/cocktail/delete/${cocktail_id}`, {
             method: 'POST',
         });
-        getCustomCocktails();
+        if(response.status === 200){
+            custom_cocktails = [];
+            ready = false;
+            await getCustomCocktails();
+        }
     }
 
     function push(url){

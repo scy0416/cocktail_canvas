@@ -20,6 +20,7 @@
     function addIngredient(){
         const input = document.getElementById('ingredientInput');
         const ingredientList = document.getElementById('ingredientList');
+        const ingredientAmountInput = document.getElementById('ingredientAmountInput');
         if(input.value.trim()){
             const ingredient = document.createElement('div');
             ingredient.className = 'flex items-center gap-2';
@@ -27,6 +28,10 @@
             badge.className = 'badge badge-lg flex grow';
             badge.textContent = input.value;
             ingredient.appendChild(badge);
+            const amount = document.createElement('div');
+            amount.className = 'badge badge-lg flex grow';
+            amount.textContent = ingredientAmountInput.value;
+            ingredient.appendChild(amount);
             const btn = document.createElement('button');
             btn.className = 'btn btn-ghost btn-sm';
             btn.innerHTML = '<i class="fi fi-rr-trash"></i>';
@@ -34,6 +39,7 @@
             ingredient.appendChild(btn);
             ingredientList.appendChild(ingredient);
             input.value = '';
+            ingredientAmountInput.value = '';
         }
     }
     // 레시피 관리
@@ -83,6 +89,7 @@
             }
         }
     }
+
     function push(url){
         window.location.assign(url);
     }
@@ -90,9 +97,11 @@
     let cocktail_name;
     let cocktail_description;
     let cocktail_ingredients;
+    let cocktail_ingredient_amounts;
     let cocktail_recipes;
     let cocktail_tags;
     let cocktail_image;
+    let cocktail_alcohol;
 
     async function submit(){
         const ingredientList = document.getElementById('ingredientList');
@@ -100,8 +109,10 @@
         const tagList = document.getElementById('tagList');
 
         cocktail_ingredients = [];
+        cocktail_ingredient_amounts = [];
         for(let i = 0; i < ingredientList.children.length; i++){
-            cocktail_ingredients.push(ingredientList.children[i].textContent);
+            cocktail_ingredients.push(ingredientList.children[i].children[0].textContent);
+            cocktail_ingredient_amounts.push(ingredientList.children[i].children[1].textContent);
         }
 
         cocktail_recipes = [];
@@ -114,7 +125,7 @@
             cocktail_tags.push(tagList.children[i].textContent);
         }
 
-        if(!cocktail_name || !cocktail_description || !cocktail_ingredients || !cocktail_recipes || !cocktail_tags || !cocktail_image){
+        if(!cocktail_name || !cocktail_description || !cocktail_ingredients || !cocktail_ingredient_amounts || !cocktail_recipes || !cocktail_tags || !cocktail_image){
             alert("모든 필수 정보를 입력해주세요.");
             return;
         }
@@ -123,9 +134,11 @@
         formData.append('name', cocktail_name);
         formData.append('description', cocktail_description);
         formData.append('ingredients', cocktail_ingredients);
+        formData.append('ingredient_amounts', cocktail_ingredient_amounts);
         formData.append('recipes', cocktail_recipes);
         formData.append('tags', cocktail_tags);
         formData.append('image', cocktail_image.files[0]);
+        formData.append('alcohol', cocktail_alcohol);
 
         const response = await fetch('/api/custom-cocktail/register', {
             method: 'POST',
@@ -177,6 +190,15 @@
     </div>
     <!-- 칵테일 설명 입력 끝 -->
 
+    <!-- 칵테일 도수 입력 시작 -->
+    <div class="form-control w-full mb-5">
+        <label class="label">
+            <span class="label-text text-lg">도수 <span class="text-error">*</span></span>
+        </label>
+        <input type="number" placeholder="도수를 입력하세요" class="input input-bordered w-full" required bind:value={cocktail_alcohol}>
+    </div>
+    <!-- 칵테일 도수 입력 끝 -->
+
     <!-- 칵테일 재료 입력 시작 -->
     <div class="form-control w-full mb-5">
         <label class="label">
@@ -187,6 +209,7 @@
         </div>
         <div class="join w-full">
             <input type="text" id="ingredientInput" placeholder="재료를 입력하세요" class="input input-bordered join-item w-full">
+            <input type="text" id="ingredientAmountInput" placeholder="재료의 양을 입력하세요" class="input input-bordered join-item w-full">
             <button class="btn join-item" onclick={() => addIngredient()}>추가</button>
         </div>
     </div>

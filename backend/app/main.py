@@ -379,7 +379,7 @@ def get_usercocktails(
     """
     사용자가 만든 칵테일 리스트를 반환한다.
     """
-    cocktails = db.query(Cocktail).filter(Cocktail.user_id == user.get("id")).all()
+    cocktails = db.query(Cocktail).filter(Cocktail.user_id == user['user']['id']).all()
     result = []
     for cocktail in cocktails:
         tmp = {}
@@ -407,7 +407,7 @@ def delete_cocktail(
     cocktail = db.query(Cocktail).filter(Cocktail.id == cocktail_id).first()
     if not cocktail:
         raise HTTPException(status_code=404, detail="해당 칵테일을 찾을 수 없습니다.")
-    if cocktail.user_id != user.get("id"):
+    if cocktail.user_id != user['user']['id']:
         raise HTTPException(status_code=403, detail="해당 칵테일을 삭제할 수 없습니다.")
     db.delete(cocktail)
     db.commit()
@@ -422,26 +422,37 @@ async def create_custom_cocktail(
     name: str = Form(...),
     description: str = Form(...),
     ingredients: List[str] = Form(...),
+    ingredient_amounts: List[str] = Form(...),
     recipes: List[str] = Form(...),
     tags: List[str] = Form(...),
     image: UploadFile = File(...),
+    alcohol: float = Form(...),
 ):
     """
     사용자가 만든 칵테일을 등록한다.
     """
-    print(user)
-    print(name)
-    print(description)
-    print(ingredients)
-    print(recipes)
-    print(tags)
-    print(image)
 
+    ingredients = ingredients[0].split(',')
+    ingredient_amounts = ingredient_amounts[0].split(',')
+    recipes = recipes[0].split(',')
+    tags = tags[0].split(',')
+
+    # print(user)
+    # print(name)
+    # print(description)
+    # print(ingredients)
+    # print(ingredient_amounts)
+    # print(recipes)
+    # print(tags)
+    # print(image)
+    # print(alcohol)
+
+    # 칵테일 생성
     cocktail = Cocktail(
-        user_id=user.get("id"),
+        user_id=user['user']['id'],
         name=name,
         description=description,
-        alcohol=0,
+        alcohol=alcohol,
         user_review="-",
         image_url=""
     )
@@ -449,18 +460,35 @@ async def create_custom_cocktail(
     db.commit()
     db.refresh(cocktail)
 
-    async with aiofiles.open(f"../images/{cocktail.id}_{name}.png", "wb") as out_file:
+    # 이미지 저장
+    async with aiofiles.open(f"./images/{cocktail.id}_{name}.png", "wb") as out_file:
         while content := await image.read(1024):
             await out_file.write(content)
     
-    cocktail.image_url = f"../images/{cocktail.id}_{name}.png"
+    cocktail.image_url = f"{cocktail.id}_{name}.png"
     db.commit()
 
+    # 태그 저장
     for tag in tags:
-        tmp = Tag(cocktail_id=cocktail.id, tag=tag)
+        tmp = CocktailTag(cocktail_id=cocktail.id, tag=tag)
         db.add(tmp)
     db.commit()
 
+    # 재료 등록
+    for ingredient, ingredient_amount in zip(ingredients, ingredient_amounts):
+        tmp = Ingredient(name=ingredient)
+        db.add(tmp)
+        db.commit()
+        db.refresh(tmp)
+
+        tmp2 = RecipeIngredient(cocktail_id=cocktail.id, ingredient_id=tmp.id, amount=ingredient_amount)
+        db.add(tmp2)
+        db.commit()
     
+    # 레시피 저장
+    for recipe in recipes:
+        tmp = Recipe(cocktail_id=cocktail.id, recipe=recipe)
+        db.add(tmp)
+        db.commit()
     
     return {"message": "cocktail registered"}
