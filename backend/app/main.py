@@ -15,9 +15,10 @@ from app.models import *
 import random
 from random import Random
 from datetime import datetime, date
-from fastapi import File, UploadFile, Form
+from fastapi import File, UploadFile, Form, Path
 from typing import List
 import aiofiles
+import json
 
 """
 환경설정 영역 시작
@@ -512,3 +513,119 @@ def get_searchcocktails(sort: str = Query("name-asc"), q: str = Query(...), db: 
             tmp["tags"].append(tag.tag)
         result.append(tmp)
     return result
+
+@app.get("/api/cocktail/{cocktail_id}/review")
+def get_cocktailreview(cocktail_id: int, db: Session = Depends(get_db)):
+    """
+    칵테일 리뷰 리스트를 반환한다.
+    """
+    reviews = db.query(Review).filter(Review.cocktail_id == cocktail_id).all()
+    result = []
+    for review in reviews:
+        tmp = {}
+        tmp["name"] = review.user.name
+        tmp["date"] = review.review_date
+        tmp["rating"] = review.rating
+        tmp["review_json"] = review.comment
+        result.append(tmp)
+    return result
+
+@app.post("/api/cocktail/{cocktail_id}/review/my")
+def get_myreview(
+    response: Response,
+    request: Request,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+    cocktail_id: int = Path(...)
+):
+    """
+    사용자의 리뷰를 반환한다.
+    """
+    review = db.query(Review).filter(Review.user_id == user['user']['id'], Review.cocktail_id == cocktail_id).first()
+    if not review:
+        #raise HTTPException(status_code=404, detail="해당 리뷰를 찾을 수 없습니다.")
+        return None
+    review_dict = {
+        "name": review.user.name,
+        "date": review.review_date,
+        "rating": review.rating,
+        "review_json": review.comment
+    }
+    return review_dict
+
+@app.post("/api/cocktail/{cocktail_id}/review")
+async def post_review(
+    response: Response,
+    request: Request,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+    cocktail_id: int = Path(...),
+):
+    """
+    리뷰를 작성한다.
+    """
+    request_json = await request.json()
+    rating = request_json['rating']
+    review = request_json['review']
+    review_dict = {
+        "review": review,
+        "taste": "-",
+        "feeling": "-",
+        "atmosphere": "-",
+        "appetizer": "-"
+    }
+    review = Review(
+        user_id=user['user']['id'],
+        cocktail_id=cocktail_id,
+        rating=rating,
+        comment=json.dumps(review_dict, ensure_ascii=False)
+    )
+    db.add(review)
+    db.commit()
+    return
+
+@app.post("/api/cocktail/{cocktail_id}/review/delete")
+def delete_review(
+    response: Response,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+    cocktail_id: int = Path(...)
+):
+    """
+    리뷰를 삭제한다.
+    """
+    review = db.query(Review).filter(Review.user_id == user['user']['id'], Review.cocktail_id == cocktail_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="해당 리뷰를 찾을 수 없습니다.")
+    db.delete(review)
+    db.commit()
+    return
+
+@app.post("/api/cocktail/{cocktail_id}/review/update")
+async def update_review(
+    response: Response,
+    request: Request,
+    user: dict = Depends(verify),
+    db: Session = Depends(get_db),
+    cocktail_id: int = Path(...),
+):
+    """
+    리뷰를 수정한다.
+    """
+    request_json = await request.json()
+    rating = request_json['rating']
+    review = request_json['review']
+    review_dict = {
+        "review": review,
+        "taste": "-",
+        "feeling": "-",
+        "atmosphere": "-",
+        "appetizer": "-"
+    }
+    review = db.query(Review).filter(Review.user_id == user['user']['id'], Review.cocktail_id == cocktail_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="해당 리뷰를 찾을 수 없습니다.")
+    review.rating = rating
+    review.comment = json.dumps(review_dict, ensure_ascii=False)
+    db.commit()
+    return
