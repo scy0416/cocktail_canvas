@@ -437,16 +437,6 @@ async def create_custom_cocktail(
     recipes = recipes[0].split(',')
     tags = tags[0].split(',')
 
-    # print(user)
-    # print(name)
-    # print(description)
-    # print(ingredients)
-    # print(ingredient_amounts)
-    # print(recipes)
-    # print(tags)
-    # print(image)
-    # print(alcohol)
-
     # 칵테일 생성
     cocktail = Cocktail(
         user_id=user['user']['id'],
@@ -492,3 +482,33 @@ async def create_custom_cocktail(
         db.commit()
     
     return {"message": "cocktail registered"}
+
+@app.get("/api/search-cocktail")
+def get_searchcocktails(sort: str = Query("name-asc"), q: str = Query(...), db: Session = Depends(get_db)):
+    """
+    검색된 칵테일 리스트를 반환한다.
+    """
+    cocktails = db.query(Cocktail).filter(Cocktail.name.contains(q))
+    match sort:
+        case "name-asc":
+            cocktails = cocktails.order_by(Cocktail.name.asc())
+        case "name-desc":
+            cocktails = cocktails.order_by(Cocktail.name.desc())
+        case "alcoholic-asc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.asc())
+        case "alcoholic-desc":
+            cocktails = cocktails.order_by(Cocktail.alcohol.desc())
+    cocktails = cocktails.all()
+    result = []
+    for cocktail in cocktails:
+        tmp = {}
+        tmp["name"] = cocktail.name
+        tmp["description"] = cocktail.description
+        tmp["alcohol"] = cocktail.alcohol
+        tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
+        tmp["tags"] = []
+        for tag in cocktail.tags:
+            tmp["tags"].append(tag.tag)
+        result.append(tmp)
+    return result

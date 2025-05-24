@@ -1,5 +1,9 @@
 <script>
     import { isAuthenticated } from '../store.js';
+    import { push } from 'svelte-spa-router'; // svelte-spa-router의 push 액션 가져오기
+    import { onMount } from 'svelte';
+
+    let searchInput;
     function login(){
         window.location.assign('/api/login/kakao');
     }
@@ -12,9 +16,24 @@
             console.log("로그아웃 성공");
         }
     }
-    function push(url){
-        window.location.assign(url);
+    // 이 push 함수는 svelte-spa-router의 push를 사용하는 것이 좋습니다.
+    // 기존의 window.location.assign('/#/my-page') 대신 push('/my-page')
+    // svelte-spa-router는 #/my-page와 같은 hash 기반 라우팅을 자동으로 처리합니다.
+    function navigateTo(url){
+        push(url);
     }
+    function search(){
+        const q = searchInput.value;
+        //push(`/search?q=${q}`); // window.location.assign 대신 push 사용
+        window.location.assign(`#/search?q=${q}`);
+        window.location.reload();
+    }
+    onMount(() => {
+        const q = new URLSearchParams('?'+window.location.href.split('?')[1]).get('q') || "";
+        if (q){
+            searchInput.value = q;
+        }
+    });
 </script>
 
 <!-- 전체 헤더 시작 -->
@@ -30,7 +49,7 @@
         <aside class="bg-base-100 min-h-screen w-80">
             <div class="p-4 flex">
                 {#if $isAuthenticated}
-                <button class="flex-1 btn btn-info" on:click={() => push('/#/my-page')}>마이페이지</button>
+                <button class="flex-1 btn btn-info" on:click={() => navigateTo('/#/my-page')}>마이페이지</button>
                 <button class="flex-1 btn btn-ghost" on:click={logout}>로그아웃</button>
                 {:else}
                 <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
@@ -73,7 +92,7 @@
     <!-- 로그인, 회원가입 버튼 시작 -->
     <div class="ml-auto">
         {#if $isAuthenticated}
-        <button class="btn btn-info" on:click={() => push('/#/my-page')}>마이페이지</button>
+        <button class="btn btn-info" on:click={() => navigateTo('/#/my-page')}>마이페이지</button>
         <button class="btn btn-ghost" on:click={logout}>로그아웃</button>
         {:else}
         <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
@@ -87,8 +106,8 @@
 <!-- 검색 창 시작 -->
 <div class="m-5 shadow-sm">
     <div class="join w-full">
-        <input type="text" placeholder="검색어를 입력하세요" class="input input-lg join-item w-full">
-        <button class="btn btn-lg join-item"><i class="fi fi-rr-search"></i>검색</button>
+        <input type="text" placeholder="검색어를 입력하세요" class="input input-lg join-item w-full" bind:this={searchInput}>
+        <button class="btn btn-lg join-item" on:click={search}><i class="fi fi-rr-search"></i>검색</button>
     </div>
 </div>
 <!-- 검색 창 끝 -->

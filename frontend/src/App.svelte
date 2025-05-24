@@ -8,6 +8,7 @@
   import IBACocktail from './routes/IBACocktail.svelte';
   import CustomCocktail from './routes/CustomCocktail.svelte';
   import CustomCocktailRegister from './routes/CustomCocktailRegister.svelte';
+  import Search from './routes/Search.svelte';
   import { link } from 'svelte-spa-router';
   import { wrap } from 'svelte-spa-router/wrap';
   import { isAuthenticated } from './store.js';
@@ -51,6 +52,7 @@
     '/iba-cocktail': IBACocktail,
     '/custom-cocktail': CustomCocktail,
     '/custom-cocktail/register': wrap({ component: CustomCocktailRegister, conditions: [guardHome] }),
+    '/search': Search,
     '*': NotFound
   };
 </script>
