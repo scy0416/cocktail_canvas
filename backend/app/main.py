@@ -19,6 +19,9 @@ from fastapi import File, UploadFile, Form, Path
 from typing import List
 import aiofiles
 import json
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
 
 """
 환경설정 영역 시작
@@ -29,6 +32,8 @@ load_dotenv()
 
 # 서버 객체 생성
 app = FastAPI()
+
+llm = OllamaLLM(model="gemma3:4b", base_url=os.getenv("BASE_URL"))
 
 # 데이터베이스 연결 생성
 SECRET_KEY = "cocktail_canvas"
@@ -567,12 +572,33 @@ async def post_review(
     request_json = await request.json()
     rating = request_json['rating']
     review = request_json['review']
+
+    # 맛, 느낌, 분위기, 안주 추출
+    parser = JsonOutputParser(return_id=True)
+
+    format_instructions = """다음 JSON 형식을 지켜주세요:
+    {
+    "taste": "맛 설명, 맛 설명이 없다면 '-'",
+    "feeling": "느낌 설명, 느낌 설명이 없다면 '-'",
+    "atmosphere": "분위기 설명, 분위기 설명이 없다면 '-'",
+    "appetizer": "안주 설명, 안주 설명이 없다면 '-'"
+    }
+    """
+    prompt = PromptTemplate(
+        template="리뷰 내용을 배탕으로 다음 형식으로 분리해줘.\n{format_instructions}\n리뷰: {review}",
+        input_variables=["review", "format_instructions"]
+    )
+
+    chain = prompt | llm | parser
+
+    result = chain.invoke({"review": review, "format_instructions": format_instructions})
+    
     review_dict = {
         "review": review,
-        "taste": "-",
-        "feeling": "-",
-        "atmosphere": "-",
-        "appetizer": "-"
+        "taste": result["taste"],
+        "feeling": result["feeling"],
+        "atmosphere": result["atmosphere"],
+        "appetizer": result["appetizer"]
     }
     review = Review(
         user_id=user['user']['id'],
@@ -615,12 +641,32 @@ async def update_review(
     request_json = await request.json()
     rating = request_json['rating']
     review = request_json['review']
+
+    # 맛, 느낌, 분위기, 안주 추출
+    parser = JsonOutputParser(return_id=True)
+
+    format_instructions = """다음 JSON 형식을 지켜주세요:
+    {
+    "taste": "맛 설명, 맛 설명이 없다면 '-'",
+    "feeling": "느낌 설명, 느낌 설명이 없다면 '-'",
+    "atmosphere": "분위기 설명, 분위기 설명이 없다면 '-'",
+    "appetizer": "안주 설명, 안주 설명이 없다면 '-'"
+    }
+    """
+    prompt = PromptTemplate(
+        template="리뷰 내용을 배탕으로 다음 형식으로 분리해줘.\n{format_instructions}\n리뷰: {review}",
+        input_variables=["review", "format_instructions"]
+    )
+
+    chain = prompt | llm | parser
+
+    result = chain.invoke({"review": review, "format_instructions": format_instructions})
     review_dict = {
         "review": review,
-        "taste": "-",
-        "feeling": "-",
-        "atmosphere": "-",
-        "appetizer": "-"
+        "taste": result["taste"],
+        "feeling": result["feeling"],
+        "atmosphere": result["atmosphere"],
+        "appetizer": result["appetizer"]
     }
     review = db.query(Review).filter(Review.user_id == user['user']['id'], Review.cocktail_id == cocktail_id).first()
     if not review:

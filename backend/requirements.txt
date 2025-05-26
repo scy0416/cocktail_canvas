@@ -8,3 +8,7 @@ pymysql
 cryptography
 python-multipart
 aiofiles
+langchain
+langchain-ollama
+langchain_core
+langchain_community
