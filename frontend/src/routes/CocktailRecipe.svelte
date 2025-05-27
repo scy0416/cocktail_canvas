@@ -207,7 +207,7 @@
 
         <!-- 평가 인풋 시작 -->
         <div class="w-full">
-            <textarea placeholder="평가를 입력해주세요." class="input input-sm join-item w-full" bind:value={updateReview}/>
+            <textarea placeholder="평가를 입력해주세요." class="input input-sm join-item w-full" bind:value={updateReview}></textarea>
         </div>
         <!-- 평가 인풋 끝 -->
     </div>

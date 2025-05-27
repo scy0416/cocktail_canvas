@@ -145,7 +145,8 @@
             body: formData,
         });
         if(response.status === 200){
-            push('/#/my-page');
+            //push('/#/my-page');
+            window.location.assign('/#/my-page');
         }
         else{
             alert("칵테일 등록에 실패했습니다.");
