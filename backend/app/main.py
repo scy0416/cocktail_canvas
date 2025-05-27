@@ -258,6 +258,7 @@ def recommend_random_cocktail(db: Session = Depends(get_db)):
         tmp["description"] = cocktail.description
         tmp["alcohol"] = cocktail.alcohol
         tmp["image_url"] = cocktail.image_url
+        tmp["id"] = cocktail.id
         tmp["tags"] = []
         for tag in cocktail.tags:
             tmp["tags"].append(tag.tag)

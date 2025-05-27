@@ -49,7 +49,7 @@
         <aside class="bg-base-100 min-h-screen w-80">
             <div class="p-4 flex">
                 {#if $isAuthenticated}
-                <button class="flex-1 btn btn-info" on:click={() => navigateTo('/#/my-page')}>마이페이지</button>
+                <button class="flex-1 btn btn-info" on:click={() => navigateTo('/my-page')}>마이페이지</button>
                 <button class="flex-1 btn btn-ghost" on:click={logout}>로그아웃</button>
                 {:else}
                 <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
@@ -92,7 +92,7 @@
     <!-- 로그인, 회원가입 버튼 시작 -->
     <div class="ml-auto">
         {#if $isAuthenticated}
-        <button class="btn btn-info" on:click={() => navigateTo('/#/my-page')}>마이페이지</button>
+        <button class="btn btn-info" on:click={() => navigateTo('/my-page')}>마이페이지</button>
         <button class="btn btn-ghost" on:click={logout}>로그아웃</button>
         {:else}
         <button on:click={login} class="btn" style="background-color: #FEE500; color: #000000; border: none;"><img src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" alt="카카오 로그인" style="height: 18px; margin-right: 8px;">카카오 로그인</button>
